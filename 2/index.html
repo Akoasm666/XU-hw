@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>待办事项应用</title>
+    <!-- 链接外部样式表 -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 主容器 -->
+    <main class="container">
+        <!-- 应用标题 -->
+        <header>
+            <h1>📝 待办事项</h1>
+            <p class="subtitle">管理您的日常任务</p>
+        </header>
+
+        <!-- 添加任务表单 -->
+        <section class="add-task-section">
+            <form id="todo-form" class="todo-form">
+                <input 
+                    type="text" 
+                    id="todo-input" 
+                    class="todo-input" 
+                    placeholder="输入新的待办事项..." 
+                    autocomplete="off"
+                    required
+                >
+                <button type="submit" class="add-btn">添加</button>
+            </form>
+        </section>
+
+        <!-- 筛选条件 -->
+        <section class="filter-section">
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">全部</button>
+                <button class="filter-btn" data-filter="pending">未完成</button>
+                <button class="filter-btn" data-filter="completed">已完成</button>
+            </div>
+            <div class="task-count">
+                <span id="task-count">0 个任务</span>
+            </div>
+        </section>
+
+        <!-- 待办事项列表 -->
+        <section class="todo-list-section">
+            <ul id="todo-list" class="todo-list">
+                <!-- 待办事项将通过JavaScript动态添加 -->
+            </ul>
+            <!-- 空状态提示 -->
+            <div id="empty-state" class="empty-state">
+                <p>暂无待办事项</p>
+                <p class="empty-hint">在上方输入框添加新任务吧！</p>
+            </div>
+        </section>
+
+        <!-- 底部操作按钮 -->
+        <footer class="footer-actions">
+            <button id="clear-completed-btn" class="action-btn clear-completed">清除已完成</button>
+            <button id="clear-all-btn" class="action-btn clear-all">清除全部</button>
+        </footer>
+    </main>
+
+    <!-- 链接JavaScript脚本 -->
+    <script src="script.js"></script>
+</body>
+</html>

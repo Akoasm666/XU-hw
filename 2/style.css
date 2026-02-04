@@ -1,0 +1,456 @@
+/* =============================================
+   待办事项应用样式表
+   
+   文件说明：
+   - 使用CSS变量实现主题配色
+   - 采用Flexbox布局
+   - 包含响应式设计
+   - 实现悬停和过渡动画效果
+   ============================================= */
+
+/* CSS变量定义 - 方便统一管理颜色和尺寸 */
+:root {
+    /* 主色调 */
+    --primary-color: #4a90d9;
+    --primary-hover: #357abd;
+    --primary-light: #e8f4fd;
+    
+    /* 状态颜色 */
+    --success-color: #52c41a;
+    --success-hover: #45a617;
+    --danger-color: #ff4d4f;
+    --danger-hover: #d9363e;
+    
+    /* 中性色 */
+    --text-primary: #333333;
+    --text-secondary: #666666;
+    --text-muted: #999999;
+    --border-color: #e0e0e0;
+    --background-color: #f5f7fa;
+    --white: #ffffff;
+    
+    /* 阴影 */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.16);
+    
+    /* 圆角 */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    
+    /* 过渡动画 */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.25s ease;
+}
+
+/* 全局重置样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* 页面基础样式 */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 
+                 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', 
+                 Helvetica, Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 40px 20px;
+    line-height: 1.6;
+    color: var(--text-primary);
+}
+
+/* 主容器样式 - 居中显示，最大宽度800px */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+}
+
+/* =============================================
+   头部标题样式
+   ============================================= */
+header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #667eea 100%);
+    color: var(--white);
+    padding: 30px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    font-size: 0.95rem;
+    opacity: 0.9;
+}
+
+/* =============================================
+   添加任务表单样式
+   ============================================= */
+.add-task-section {
+    padding: 24px 30px;
+    background: var(--background-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.todo-form {
+    display: flex;
+    gap: 12px;
+}
+
+/* 输入框样式 */
+.todo-input {
+    flex: 1;
+    padding: 14px 18px;
+    font-size: 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    outline: none;
+    transition: border-color var(--transition-fast), 
+                box-shadow var(--transition-fast);
+}
+
+.todo-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.todo-input::placeholder {
+    color: var(--text-muted);
+}
+
+/* 添加按钮样式 */
+.add-btn {
+    padding: 14px 28px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--white);
+    background: var(--primary-color);
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: background var(--transition-fast), 
+                transform var(--transition-fast),
+                box-shadow var(--transition-fast);
+}
+
+/* 添加按钮悬停效果 */
+.add-btn:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+.add-btn:active {
+    transform: translateY(0);
+}
+
+/* =============================================
+   筛选条件区域样式
+   ============================================= */
+.filter-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 30px;
+    background: var(--white);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+/* 筛选按钮样式 */
+.filter-btn {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    background: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+/* 筛选按钮悬停效果 */
+.filter-btn:hover {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+    background: var(--primary-light);
+}
+
+/* 筛选按钮激活状态 */
+.filter-btn.active {
+    color: var(--white);
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* 任务计数显示 */
+.task-count {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+/* =============================================
+   待办事项列表样式
+   ============================================= */
+.todo-list-section {
+    padding: 20px 30px;
+    min-height: 300px;
+}
+
+.todo-list {
+    list-style: none;
+}
+
+/* 单个待办事项样式 */
+.todo-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    background: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-normal);
+}
+
+/* 待办事项悬停效果 */
+.todo-item:hover {
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-sm);
+    transform: translateX(4px);
+}
+
+/* 待办事项文字 */
+.todo-text {
+    flex: 1;
+    font-size: 1rem;
+    color: var(--text-primary);
+    word-break: break-word;
+}
+
+/* 已完成状态样式 - 文字划掉效果 */
+.todo-item.completed .todo-text {
+    text-decoration: line-through;
+    color: var(--text-muted);
+}
+
+.todo-item.completed {
+    background: var(--white);
+    opacity: 0.7;
+}
+
+/* 操作按钮容器 */
+.todo-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* 完成按钮样式 */
+.complete-btn {
+    padding: 8px 14px;
+    font-size: 0.85rem;
+    color: var(--success-color);
+    background: transparent;
+    border: 1px solid var(--success-color);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+/* 完成按钮悬停效果 */
+.complete-btn:hover {
+    color: var(--white);
+    background: var(--success-color);
+}
+
+/* 已完成状态下的完成按钮 */
+.todo-item.completed .complete-btn {
+    color: var(--white);
+    background: var(--success-color);
+}
+
+/* 删除按钮样式 */
+.delete-btn {
+    padding: 8px 14px;
+    font-size: 0.85rem;
+    color: var(--danger-color);
+    background: transparent;
+    border: 1px solid var(--danger-color);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+/* 删除按钮悬停效果 */
+.delete-btn:hover {
+    color: var(--white);
+    background: var(--danger-color);
+}
+
+/* =============================================
+   空状态提示样式
+   ============================================= */
+.empty-state {
+    display: none;
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+}
+
+.empty-state.show {
+    display: block;
+}
+
+.empty-state p:first-child {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+}
+
+.empty-hint {
+    font-size: 0.9rem;
+}
+
+/* =============================================
+   底部操作按钮样式
+   ============================================= */
+.footer-actions {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    padding: 20px 30px;
+    background: var(--background-color);
+    border-top: 1px solid var(--border-color);
+}
+
+.action-btn {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+/* 清除已完成按钮 */
+.clear-completed {
+    color: var(--text-secondary);
+    background: var(--white);
+    border: 1px solid var(--border-color);
+}
+
+.clear-completed:hover {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* 清除全部按钮 */
+.clear-all {
+    color: var(--white);
+    background: var(--danger-color);
+}
+
+.clear-all:hover {
+    background: var(--danger-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+/* =============================================
+   动画效果
+   ============================================= */
+/* 淡入动画 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.todo-item {
+    animation: fadeIn 0.3s ease;
+}
+
+/* =============================================
+   响应式设计 - 移动端适配
+   ============================================= */
+@media (max-width: 600px) {
+    body {
+        padding: 20px 10px;
+    }
+
+    header {
+        padding: 24px 20px;
+    }
+
+    header h1 {
+        font-size: 1.5rem;
+    }
+
+    .add-task-section,
+    .filter-section,
+    .todo-list-section,
+    .footer-actions {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .todo-form {
+        flex-direction: column;
+    }
+
+    .add-btn {
+        width: 100%;
+    }
+
+    .filter-section {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .filter-buttons {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .todo-item {
+        flex-wrap: wrap;
+    }
+
+    .todo-text {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+
+    .todo-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .footer-actions {
+        flex-direction: column;
+    }
+
+    .action-btn {
+        width: 100%;
+    }
+}
