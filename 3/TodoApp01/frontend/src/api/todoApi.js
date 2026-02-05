@@ -27,17 +27,19 @@ export const getTodos = async (status = 'all') => {
 /**
  * 创建新的待办事项
  * @param {string} title - 任务标题
+ * @param {string} description - 描述信息（可选）
+ * @param {string} priority - 优先级 (low, medium, high)
  * @returns {Promise} 创建的待办事项
  */
-export const createTodo = async (title) => {
-  const response = await api.post('/todos', { title });
+export const createTodo = async (title, description = '', priority = 'low') => {
+  const response = await api.post('/todos', { title, description, priority });
   return response.data;
 };
 
 /**
  * 更新待办事项
  * @param {number} id - 待办事项ID
- * @param {object} data - 更新数据 { title?, completed? }
+ * @param {object} data - 更新数据 { title?, description?, priority?, completed? }
  * @returns {Promise} 更新后的待办事项
  */
 export const updateTodo = async (id, data) => {

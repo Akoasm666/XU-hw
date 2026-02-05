@@ -9,6 +9,8 @@ from pydantic import BaseModel
 class TodoBase(BaseModel):
     """待办事项基础模式"""
     title: str
+    description: Optional[str] = None
+    priority: Optional[str] = "low"  # low, medium, high
 
 
 class TodoCreate(TodoBase):
@@ -19,6 +21,8 @@ class TodoCreate(TodoBase):
 class TodoUpdate(BaseModel):
     """更新待办事项的模式"""
     title: Optional[str] = None
+    description: Optional[str] = None
+    priority: Optional[str] = None
     completed: Optional[bool] = None
 
 

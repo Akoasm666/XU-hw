@@ -14,20 +14,22 @@ import {
 import './App.css';
 
 function App() {
-  const [todos, setTodos] = useState([]);
+  const [allTodos, setAllTodos] = useState([]);  // 所有待办事项（用于统计）
   const [inputValue, setInputValue] = useState('');
+  const [description, setDescription] = useState('');
+  const [priority, setPriority] = useState('low');
   const [filter, setFilter] = useState('all');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // 加载待办事项列表
+  // 加载所有待办事项
   const loadTodos = async () => {
     setLoading(true);
     setError('');
     try {
-      const response = await getTodos(filter);
+      const response = await getTodos('all');
       if (response.code === 200) {
-        setTodos(response.data);
+        setAllTodos(response.data);
       }
     } catch (err) {
       setError('加载待办事项失败，请确保后端服务已启动');
@@ -37,10 +39,28 @@ function App() {
     }
   };
 
-  // 初始加载和筛选变化时重新加载
+  // 初始加载
   useEffect(() => {
     loadTodos();
-  }, [filter]);
+  }, []);
+
+  // 优先级权重（高 > 中 > 低）
+  const priorityWeight = { high: 3, medium: 2, low: 1 };
+
+  // 根据筛选条件过滤并排序显示的待办事项
+  const filteredTodos = allTodos
+    .filter((todo) => {
+      if (filter === 'pending') return !todo.completed;
+      if (filter === 'completed') return todo.completed;
+      return true;
+    })
+    .sort((a, b) => {
+      // 先按优先级排序（高优先级在前）
+      const priorityDiff = (priorityWeight[b.priority] || 1) - (priorityWeight[a.priority] || 1);
+      if (priorityDiff !== 0) return priorityDiff;
+      // 优先级相同时，按创建时间排序（新的在前）
+      return new Date(b.created_at) - new Date(a.created_at);
+    });
 
   // 添加待办事项
   const handleAdd = async () => {
@@ -52,9 +72,11 @@ function App() {
 
     setError('');
     try {
-      const response = await createTodo(title);
+      const response = await createTodo(title, description.trim(), priority);
       if (response.code === 201) {
         setInputValue('');
+        setDescription('');
+        setPriority('low');
         loadTodos();
       }
     } catch (err) {
@@ -65,7 +87,8 @@ function App() {
 
   // 按回车键添加
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
       handleAdd();
     }
   };
@@ -105,7 +128,7 @@ function App() {
 
   // 清除全部
   const handleClearAll = async () => {
-    if (window.confirm('确定要清除全部待办事项吗？')) {
+    if (window.confirm('确定要清空所有待办事项吗？')) {
       try {
         await deleteAllTodos();
         loadTodos();
@@ -116,34 +139,71 @@ function App() {
     }
   };
 
-  // 计算统计信息
-  const totalCount = todos.length;
-  const completedCount = todos.filter((t) => t.completed).length;
-  const pendingCount = totalCount - completedCount;
+  // 计算统计信息（始终基于全部数据）
+  const completedCount = allTodos.filter((t) => t.completed).length;
+  const pendingCount = allTodos.filter((t) => !t.completed).length;
+  const totalCount = allTodos.length;
+
+  // 优先级选项
+  const priorityOptions = [
+    { value: 'low', label: '低优先级' },
+    { value: 'medium', label: '中优先级' },
+    { value: 'high', label: '高优先级' },
+  ];
 
   return (
     <div className="app">
-      <div className="container">
-        {/* 标题 */}
-        <h1 className="title">待办事项</h1>
+      {/* 头部 */}
+      <header className="header">
+        <h1 className="header-title">待办事项管理</h1>
+        <p className="header-subtitle">高效管理您的日常任务</p>
+      </header>
 
+      <div className="container">
         {/* 输入区域 */}
         <div className="input-section">
-          <input
-            type="text"
-            className="input"
-            placeholder="输入新任务..."
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyPress={handleKeyPress}
+          <div className="input-row">
+            <input
+              type="text"
+              className="input"
+              placeholder="输入新的待办事项..."
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyPress={handleKeyPress}
+            />
+            <select
+              className="priority-select"
+              value={priority}
+              onChange={(e) => setPriority(e.target.value)}
+            >
+              {priorityOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            <button className="btn-add" onClick={handleAdd}>
+              添加
+            </button>
+          </div>
+          <textarea
+            className="description-input"
+            placeholder="描述信息（可选）..."
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={3}
           />
-          <button className="btn-add" onClick={handleAdd}>
-            添加
-          </button>
         </div>
 
         {/* 错误提示 */}
         {error && <div className="error-message">{error}</div>}
+
+        {/* 统计信息 */}
+        <div className="stats-section">
+          <span>总计: <strong>{totalCount}</strong></span>
+          <span>未完成: <strong>{pendingCount}</strong></span>
+          <span>已完成: <strong>{completedCount}</strong></span>
+        </div>
 
         {/* 筛选区域 */}
         <div className="filter-section">
@@ -151,19 +211,19 @@ function App() {
             className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
             onClick={() => setFilter('all')}
           >
-            全部 ({filter === 'all' ? totalCount : '-'})
+            全部 ({totalCount})
           </button>
           <button
             className={`filter-btn ${filter === 'pending' ? 'active' : ''}`}
             onClick={() => setFilter('pending')}
           >
-            未完成 ({filter === 'pending' ? totalCount : '-'})
+            未完成 ({pendingCount})
           </button>
           <button
             className={`filter-btn ${filter === 'completed' ? 'active' : ''}`}
             onClick={() => setFilter('completed')}
           >
-            已完成 ({filter === 'completed' ? totalCount : '-'})
+            已完成 ({completedCount})
           </button>
         </div>
 
@@ -171,7 +231,7 @@ function App() {
         <div className="todo-list-section">
           {loading ? (
             <div className="loading">加载中...</div>
-          ) : todos.length === 0 ? (
+          ) : filteredTodos.length === 0 ? (
             <div className="empty-message">
               {filter === 'all'
                 ? '暂无待办事项，添加一个吧！'
@@ -181,7 +241,7 @@ function App() {
             </div>
           ) : (
             <ul className="todo-list">
-              {todos.map((todo) => (
+              {filteredTodos.map((todo) => (
                 <TodoItem
                   key={todo.id}
                   todo={todo}
@@ -195,17 +255,12 @@ function App() {
 
         {/* 底部操作区域 */}
         <div className="footer-section">
-          <div className="stats">
-            共 {totalCount} 项，已完成 {completedCount} 项，未完成 {pendingCount} 项
-          </div>
-          <div className="footer-actions">
-            <button className="btn-clear" onClick={handleClearCompleted}>
-              清除已完成
-            </button>
-            <button className="btn-clear btn-danger" onClick={handleClearAll}>
-              清除全部
-            </button>
-          </div>
+          <button className="btn-clear btn-warning" onClick={handleClearCompleted}>
+            清除已完成 ({completedCount})
+          </button>
+          <button className="btn-clear btn-danger" onClick={handleClearAll}>
+            清空所有 ({totalCount})
+          </button>
         </div>
       </div>
     </div>

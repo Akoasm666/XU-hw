@@ -40,7 +40,11 @@ def create_todo(db: Session, todo: TodoCreate):
     :param todo: 待办事项数据
     :return: 创建的待办事项对象
     """
-    db_todo = Todo(title=todo.title)
+    db_todo = Todo(
+        title=todo.title,
+        description=todo.description,
+        priority=todo.priority or "low"
+    )
     db.add(db_todo)
     db.commit()
     db.refresh(db_todo)
