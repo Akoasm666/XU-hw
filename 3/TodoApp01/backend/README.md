@@ -13,11 +13,13 @@
 
 ```
 backend/
+├── venv/            # Python 虚拟环境
 ├── main.py          # FastAPI 主应用入口
 ├── database.py      # 数据库配置
 ├── models.py        # SQLAlchemy 数据模型
 ├── schemas.py       # Pydantic 数据验证模式
 ├── crud.py          # CRUD 操作函数
+├── todos.db         # SQLite 数据库文件（运行后生成）
 ├── requirements.txt # Python 依赖
 └── README.md        # 说明文档
 ```
@@ -69,7 +71,9 @@ POST /api/todos
 Content-Type: application/json
 
 {
-    "title": "任务名称"
+    "title": "任务名称",
+    "description": "任务描述（可选）",
+    "priority": "low|medium|high"
 }
 ```
 
@@ -79,8 +83,10 @@ PUT /api/todos/{id}
 Content-Type: application/json
 
 {
-    "title": "新标题",      // 可选
-    "completed": true      // 可选
+    "title": "新标题",          // 可选
+    "description": "新描述",    // 可选
+    "priority": "medium",       // 可选
+    "completed": true           // 可选
 }
 ```
 
@@ -121,11 +127,25 @@ DELETE /api/todos/all
 CREATE TABLE todos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title VARCHAR(255) NOT NULL,
+    description TEXT,
+    priority VARCHAR(20) DEFAULT 'low',
     completed BOOLEAN DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 ```
+
+### 字段说明
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | INTEGER | 主键ID |
+| title | VARCHAR(255) | 任务标题 |
+| description | TEXT | 任务描述（可选） |
+| priority | VARCHAR(20) | 优先级: low(低), medium(中), high(高) |
+| completed | BOOLEAN | 完成状态 |
+| created_at | DATETIME | 创建时间 |
+| updated_at | DATETIME | 更新时间 |
 
 ## 测试接口
 
@@ -135,16 +155,27 @@ CREATE TABLE todos (
 # 获取所有待办事项
 curl http://localhost:8000/api/todos
 
-# 创建待办事项
+# 创建待办事项（带优先级和描述）
 curl -X POST http://localhost:8000/api/todos \
   -H "Content-Type: application/json" \
-  -d '{"title": "学习FastAPI"}'
+  -d '{"title": "学习FastAPI", "description": "完成教程", "priority": "high"}'
 
 # 标记完成
 curl -X PUT http://localhost:8000/api/todos/1 \
   -H "Content-Type: application/json" \
   -d '{"completed": true}'
 
+# 修改优先级
+curl -X PUT http://localhost:8000/api/todos/1 \
+  -H "Content-Type: application/json" \
+  -d '{"priority": "medium"}'
+
 # 删除待办事项
 curl -X DELETE http://localhost:8000/api/todos/1
+
+# 清除已完成
+curl -X DELETE http://localhost:8000/api/todos/completed
+
+# 清空全部
+curl -X DELETE http://localhost:8000/api/todos/all
 ```
